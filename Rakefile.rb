@@ -20,7 +20,7 @@ nflog is a wrapper around libnetfilter_log that allows you to capture packets us
 DESC
 
   s.files             = FileList[
-    'COPYING', "{lib}/**/*", "{samples}/**/*"
+    'README.md', 'COPYING', "{lib}/**/*", "{samples}/**/*"
   ]
 
   s.require_path      = "lib"
