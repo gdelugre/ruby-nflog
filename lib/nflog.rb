@@ -319,7 +319,15 @@ module Netfilter
 
             set_mode(mode)
 
-            Log.nflog_callback_register(@nflog_group, method(:callback_handler), nil)
+            @callback = Proc.new {|packet| raise LogError, "Undefined callback method."}
+            @callback_handler =
+                FFI::Function.new(:int, [:pointer, :pointer, :pointer, :buffer_in]) do |nflog_group, nfmsg, nfad, data|
+                    packet = Packet.new(self, nfad)
+
+                    @callback[packet]
+                end
+
+            Log.nflog_callback_register(@nflog_group, @callback_handler, nil)
         end
 
         #
@@ -402,12 +410,6 @@ module Netfilter
         end
 
         private
-
-        def callback_handler(nflog_group, nfmsg, nfad, data)
-            packet = Packet.new(self, nfad)
-
-            @callback[packet]
-        end
 
         def close
             Log.nflog_close(@nflog_handle)
