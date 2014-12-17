@@ -22,6 +22,23 @@ Netfilter::Log.create(1) do |packet|
 end
 ```
 
+Setting up iptables
+-------------------
+
+This example rule can be used for sniffing incoming UDP traffic:
+```
+iptables -A INPUT -p udp -j NFLOG --nflog-group 1
+```
+
+Setting up ebtables
+-------------------
+
+You will need ebtables for sniffing at layer 2.
+Here is an example for capturing incomping ARP frames:
+```
+ebtables -t nat -A PREROUTING -p arp --nflog-group 1 -j ACCEPT
+```
+
 Dependencies
 ------------
 
