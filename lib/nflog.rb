@@ -368,8 +368,14 @@ module Netfilter
             raise LogError, "nfq_fd has failed" if fd < 0
 
             io = IO.new(fd)
-            while data = io.sysread(4096)
-                Log.nflog_handle_packet(@nflog_handle, data, data.size)
+            io.autoclose = false
+
+            begin
+                while data = io.sysread(4096)
+                    Log.nflog_handle_packet(@nflog_handle, data, data.size)
+                end
+            ensure
+                io.close
             end
         end
 
@@ -387,8 +393,12 @@ module Netfilter
         #
         def self.create(group, mode = CopyMode::PACKET, &callback)
             nflog = self.new(group, mode)
-            nflog.process(&callback)
-            nflog.destroy
+
+            begin
+                nflog.process(&callback)
+            ensure
+                nflog.destroy
+            end
         end
 
         private
